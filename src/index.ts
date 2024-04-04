@@ -5,6 +5,7 @@ export default class TaxScouts {
   private token?: String;
   private email?: String;
   private password?: String;
+  private userId?: String;
 
   constructor(credentials: Types.CredentialsType) {
     if (credentials.token) {
@@ -21,7 +22,7 @@ export default class TaxScouts {
     return;
   }
 
-  async getToken() {
+  async getToken(): Promise<String> {
     if (this.token) return this.token;
 
     const session = await request({
@@ -36,10 +37,24 @@ export default class TaxScouts {
       },
     });
 
-    const token = session?.idToken;
+    const token = session?.idToken as String;
     if (!token) throw new Error("Invalid credentials");
 
     this.token = token;
     return this.token;
+  }
+
+  async getAddresses(): Promise<Types.AddressType[]> {
+    const token = await this.getToken();
+
+    const addresses = await request({
+      url: "https://api.taxscouts.es/api/v1/useraddresses",
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return addresses as Types.AddressType[];
   }
 }

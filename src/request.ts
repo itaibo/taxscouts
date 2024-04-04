@@ -15,6 +15,6 @@ export default async function request(
     const response = await axios(requestConfiguration);
     return response.data;
   } catch (e) {
-    throw e;
+    throw (e as any).message;
   }
 }
